@@ -1,4 +1,9 @@
+# @kessler/encryption
+
+personal encryption utils
+
 ## Example
+
 ```js
 const encryption = require('@kessler/encryption')
 
