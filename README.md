@@ -7,10 +7,10 @@ personal encryption utils
 ```js
 const { encrypt, decrypt, createEncryptionKey, createRandomBytes } = require('@kessler/encryption')
 
-let key = createEncryptionKey('secretpass', 'salt123')
-let iv = new Buffer('9819u2nh2jksnbcjkbcsjksbcsscbskj')
-let hmacKey = createRandomBytes()
+const key = createEncryptionKey('secretpass', 'salt123')
+const iv = new Buffer('9819u2nh2jksnbcjkbcsjksbcsscbskj')
+const hmacKey = createRandomBytes()
 
-let encryptedData = encrypt('kljiasojiojioqwennm,nmz,xcnm,zxcnkjlk', key, iv, hmacKey)
-let decryptedData = decrypt(encryptedData.data, key, iv, hmacKey)
+const encryptedData = encrypt('kljiasojiojioqwennm,nmz,xcnm,zxcnkjlk', key, iv, hmacKey)
+const decryptedData = decrypt(encryptedData.data, key, iv, hmacKey)
 ```
