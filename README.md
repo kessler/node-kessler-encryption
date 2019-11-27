@@ -11,6 +11,6 @@ const key = createEncryptionKey('secretpass', 'salt123')
 const iv = new Buffer('9819u2nh2jksnbcjkbcsjksbcsscbskj')
 const hmacKey = createRandomBytes()
 
-const encryptedData = encrypt('kljiasojiojioqwennm,nmz,xcnm,zxcnkjlk', key, iv, hmacKey)
-const decryptedData = decrypt(encryptedData.data, key, iv, hmacKey)
+const encryptedData = encrypt('kljiasojiojioqwennm,nmz,xcnm,zxcnkjlk', { key, iv, hmacKey })
+const decryptedData = decrypt(encryptedData.data, { key, iv, hmacKey })
 ```
