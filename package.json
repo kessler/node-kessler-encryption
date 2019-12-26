@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/kessler/encryption#readme",
   "devDependencies": {
-    "ava": "^2.4.0"
+    "ava": "^2.4.0",
+    "concat-stream": "^2.0.0"
   }
 }

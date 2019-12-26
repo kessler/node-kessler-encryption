@@ -7,7 +7,9 @@ module.exports = {
 	},
 	aes256gcm: {
 		encrypt: encryptAes256Gcm,
-		decrypt: decryptAes256Gcm
+		encryptStream: encryptAes256GcmStream,
+		decrypt: decryptAes256Gcm,
+		decryptStream: decryptAes256GcmStream
 	},
 	createEncryptionKey,
 	createRandomBytes
@@ -22,11 +24,29 @@ function encryptAes256Gcm(data, { key, iv = Buffer.from(crypto.randomBytes(16)) 
 	}
 }
 
+function encryptAes256GcmStream({ key, iv = Buffer.from(crypto.randomBytes(16)) }) {
+	const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+	return {
+		iv,
+		stream: cipher,
+		// Not sure its a good idea to have the same name used once as a field (in normal encrypt) and then here as a function
+		authTag: () => cipher.getAuthTag()
+	}
+}
+
 function decryptAes256Gcm(data, { key, iv, authTag }) {
 	const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
 	decipher.setAuthTag(authTag)
 	return {
 		data: Buffer.concat([decipher.update(data), decipher.final()])
+	}
+}
+
+function decryptAes256GcmStream({ key, iv, authTag }) {
+	const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+	decipher.setAuthTag(authTag)
+	return {
+		stream: decipher
 	}
 }
 

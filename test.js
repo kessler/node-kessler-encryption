@@ -1,4 +1,9 @@
 const test = require('ava')
+const fs = require('fs')
+const path = require('path')
+const concatStream = require('concat-stream')
+const { Readable } = require('stream')
+
 const {
 	aes256gcm,
 	aes256ctr,
@@ -8,7 +13,7 @@ const {
 
 const crypto = require('crypto')
 
-let data, iv, key, hmacKey
+let data, iv, key, hmacKey, dataStream
 
 test('aes256ctr encrypt data using an encryption key, initialization vector (iv) and an hmac key', t => {
 	const result = aes256ctr.encrypt(data, { key, iv, hmacKey })
@@ -53,9 +58,47 @@ test('aes256gcm decrypts data', t => {
 	t.is(result.data.toString(), data)
 })
 
+test.cb('aes256gcm encrypt stream', t => {
+	const { iv, stream: encryptStream, authTag } = aes256gcm.encryptStream({ key })
+	const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+	const expectedEncryptedData = Buffer.concat([cipher.update(data), cipher.final()])
+
+	const concat = concatStream(result => {
+		t.deepEqual(result, expectedEncryptedData)
+		t.deepEqual(authTag(), cipher.getAuthTag())
+		t.end()
+	})
+
+	dataStream.pipe(encryptStream).pipe(concat)
+})
+
+test.cb('aes256gcm decrypt stream', t => {
+	const { iv, data: encryptedData, authTag } = aes256gcm.encrypt(data, { key })
+	const { stream: decryptStream } = aes256gcm.decryptStream({ key, iv, authTag })
+	const concat = concatStream(result => {
+		t.is(result.toString(), data)
+		t.end()
+	})
+
+	new MemoryStream(encryptedData).pipe(decryptStream).pipe(concat)
+})
+
 test.beforeEach(() => {
 	data = 'secret'
+	dataStream = new MemoryStream(data)
 	key = createEncryptionKey('secretPass', 'salt123')
 	iv = new Buffer('9819u2nh2jksnbcjkbcsjksbcsscbskj')
 	hmacKey = createRandomBytes()
 })
+
+class MemoryStream extends Readable {
+	constructor(data) {
+		super()
+		this._data = data
+	}
+
+	_read(size) {
+		this.push(this._data)
+		this.push(null)
+	}
+}
