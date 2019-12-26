@@ -1,6 +1,6 @@
 {
   "name": "@kessler/encryption",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "personal encrypt/decrypt utils",
   "main": "index.js",
   "scripts": {
