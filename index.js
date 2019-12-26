@@ -1,13 +1,36 @@
 const crypto = require('crypto')
 
 module.exports = {
-	encrypt,
-	decrypt,
+	aes256ctr: {
+		encrypt: encryptAes256Ctr,
+		decrypt: decryptAes256Ctr
+	},
+	aes256gcm: {
+		encrypt: encryptAes256Gcm,
+		decrypt: decryptAes256Gcm
+	},
 	createEncryptionKey,
 	createRandomBytes
 }
 
-function encrypt(data, { key, iv, hmacKey }) {
+function encryptAes256Gcm(data, { key, iv = Buffer.from(crypto.randomBytes(16)) }) {
+	const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
+	return {
+		iv,
+		data: Buffer.concat([cipher.update(data), cipher.final()]),
+		authTag: cipher.getAuthTag()
+	}
+}
+
+function decryptAes256Gcm(data, { key, iv, authTag }) {
+	const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv)
+	decipher.setAuthTag(authTag)
+	return {
+		data: Buffer.concat([decipher.update(data), decipher.final()])
+	}
+}
+
+function encryptAes256Ctr(data, { key, iv, hmacKey }) {
 
 	const cipher = crypto.createCipheriv('aes-256-ctr', key, iv.slice(0, 16))
 	const encrypted = Buffer.concat([cipher.update(data), cipher.final()])
@@ -24,7 +47,7 @@ function encrypt(data, { key, iv, hmacKey }) {
 	}
 }
 
-function decrypt(data, { key, iv, hmacKey }) {
+function decryptAes256Ctr(data, { key, iv, hmacKey }) {
 
 	const decipherer = crypto.createDecipheriv('aes-256-ctr', key, iv.slice(0, 16))
 
@@ -35,7 +58,7 @@ function decrypt(data, { key, iv, hmacKey }) {
 	}
 
 	return {
-		data: decipherer.update(data),
+		data: Buffer.concat([decipherer.update(data), decipherer.final()]),
 		hmac: hmac
 	}
 }
