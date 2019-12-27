@@ -5,12 +5,12 @@ personal encryption utils
 ## Example
 
 ```js
-const encryption = require('@kessler/encryption')
+const { encrypt, decrypt, createEncryptionKey, createRandomBytes } = require('@kessler/encryption')
 
-let key = encryption.createEncryptionKey('secretpass', 'salt123')
-let iv = new Buffer('9819u2nh2jksnbcjkbcsjksbcsscbskj')
-let hmacKey = encryption.createRandomBytes()
+const key = createEncryptionKey('secretpass', 'salt123')
+const iv = new Buffer('9819u2nh2jksnbcjkbcsjksbcsscbskj')
+const hmacKey = createRandomBytes()
 
-let encryptedData = encryption.encrypt('kljiasojiojioqwennm,nmz,xcnm,zxcnkjlk', key, iv, hmacKey)
-let decryptedData = encryption.decrypt(encryptedData.data, key, iv, hmacKey)
+const encryptedData = encrypt('kljiasojiojioqwennm,nmz,xcnm,zxcnkjlk', { key, iv, hmacKey })
+const decryptedData = decrypt(encryptedData.data, { key, iv, hmacKey })
 ```
